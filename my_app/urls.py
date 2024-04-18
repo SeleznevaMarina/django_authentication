@@ -7,4 +7,4 @@ urlpatterns = [
     path('logout/', user_logout, name='user_logout'),
     path('update_password/', update_password, name='update_password'),
     path('token_refresh/', token_refresh, name='token_refresh'),
-]
+    ]

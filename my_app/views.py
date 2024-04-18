@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
+import uuid
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -22,7 +24,7 @@ def user_registration(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        return Response({'message': 'User registered successfully'}, status=HTTP_200_OK)
+        return Response({"id": user.id, "email": user.email}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -34,7 +36,7 @@ def user_login(request):
     if user:
         login(request, user)
         token, _ = Token.objects.get_or_create(user=user)
-        refresh_token = RefreshToken.objects.create(user=user, token=uuid.uuid4(), expires_at=timezone.now() + timedelta(days=settings.REFRESH_TOKEN_LIFESPAN_DAYS))
+        refresh_token = RefreshToken.objects.create(user=user, token=str(uuid.uuid4()), expires_at=timezone.now() + timedelta(days=settings.REFRESH_TOKEN_LIFESPAN_DAYS))
         return JsonResponse({'token': token.key, 'refresh_token': refresh_token.token}, status=HTTP_200_OK)
     return JsonResponse({'error': 'Invalid credentials'}, status=HTTP_400_BAD_REQUEST)
 
