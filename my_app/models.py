@@ -6,7 +6,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
 
     def __str__(self):
-        return self.username
+        return self.email
     
     user_permissions = models.ManyToManyField(
         Permission,
@@ -18,12 +18,12 @@ class User(AbstractUser):
         related_name='my_app_user_groups'
     )
 
-    class UserPermission(models.Model):
-        user = models.ForeignKey('User', on_delete=models.CASCADE)
-        permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
+class UserPermission(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    permission = models.ForeignKey(Permission, on_delete=models.CASCADE)
 
-        class Meta:
-            db_table = 'my_app_user_permission'
+    class Meta:
+        db_table = 'my_app_user_permission'
 
 class RefreshToken(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

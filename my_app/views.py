@@ -5,7 +5,8 @@ from django.contrib.auth.models import update_last_login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from .authentication import MyJWTAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
@@ -28,11 +29,13 @@ def user_registration(request):
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+@authentication_classes([MyJWTAuthentication])
 @permission_classes([AllowAny])
 def user_login(request):
-    username = request.data.get('username')
+    print(request.data)
+    email = request.data.get('email')
     password = request.data.get('password')
-    user = authenticate(username=username, password=password)
+    user = authenticate(email=email, password=password)
     if user:
         login(request, user)
         token, _ = Token.objects.get_or_create(user=user)
